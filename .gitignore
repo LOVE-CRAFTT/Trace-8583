@@ -1,64 +1,90 @@
+# OS and editor files
 .DS_Store
-.huskyrc.json
-out
-log.log
-**/node_modules
-*.pyc
-*.vsix
-envVars.txt
+.vs/
+.vscode
+.idea/
 **/.vscode/.ropeproject/**
-**/testFiles/**/.cache/**
-*.noseids
-.nyc_output
 .vscode-test
-__pycache__
-npm-debug.log
-**/.mypy_cache/**
-!yarn.lock
-coverage/
-cucumber-report.json
 **/.vscode-test/**
 **/.vscode test/**
 **/.vscode-smoke/**
+
+# Python
+*.pyc
+*.pyo
+__pycache__
+.python-version
 **/.venv*/
-port.txt
-precommit.hook
-python_files/lib/**
-python_files/get-pip.py
-debug_coverage*/**
-languageServer/**
-languageServer.*/**
+.ruff_cache/
+**/.mypy_cache/**
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+envVars.txt
+
+# Node
+**/node_modules
+npm-debug.log
+!yarn.lock
+
+# Build output and packaging
+out
 bin/**
 obj/**
+dist/**
+*.vsix
+wheels/
+*.egg-info
+!build/
+# build/ is ignored again here for Python packaging output (overrides the !build/ line above)
+build/
+
+# Testing and coverage
+coverage/
+.coverage
+htmlcov/
+.nyc_output
 .pytest_cache
-tmp/**
-.python-version
-.vs/
+*.noseids
+cucumber-report.json
+debug_coverage*/**
 test-results*.xml
 xunit-test-results.xml
 build/ci/performance/performance-results.json
-!build/
-debug*.log
-debugpy*.log
-pydevd*.log
-nodeLanguageServer/**
-nodeLanguageServer.*/**
-dist/**
-# translation files
-*.xlf
-package.nls.*.json
-l10n/
-python-env-tools/**
+**/testFiles/**/.cache/**
 # coverage files produced as test output
 python_files/tests/*/.data/.coverage*
 python_files/tests/*/.data/*/.coverage*
 src/testTestingRootWkspc/coverageWorkspace/.coverage
 
+# Logs
+log.log
+debug*.log
+debugpy*.log
+pydevd*.log
+
+# Language servers and tooling
+languageServer/**
+languageServer.*/**
+nodeLanguageServer/**
+nodeLanguageServer.*/**
+python-env-tools/**
+python_files/lib/**
+python_files/get-pip.py
+.huskyrc.json
+precommit.hook
+port.txt
+tmp/**
+
+# translation files
+*.xlf
+package.nls.*.json
+l10n/
+
 # ignore ai artifacts generated and placed in this folder
 ai-artifacts/*
-
-.vscode
-
 
 # miscellaneous
 **/random/*
