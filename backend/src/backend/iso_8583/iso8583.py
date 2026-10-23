@@ -4,8 +4,8 @@ ISO 8583:1987 spec as described by https://en.wikipedia.org/wiki/ISO_8583.
 """
 # import pprint
 import json
-from exceptions import (BitMapOneError, BitMapTwoError, DataElementError, MTIError)
-from data_element_format import DATA_ELEMENT_FORMAT
+from .exceptions import (BitMapOneError, BitMapTwoError, DataElementError, MTIError)
+from .data_element_format import DATA_ELEMENT_FORMAT
 
 BMP_ONE = 1
 BMP_TWO = 2

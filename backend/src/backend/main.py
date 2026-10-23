@@ -1,13 +1,46 @@
+"""
+Trace-8583 Backend.
+Backend for a web-based ledger built on top of an iso_8583 parser project.
+"""
+
+import json
 from fastapi import FastAPI
+from .iso_8583.iso8583 import iso_8583_to_json as iso_8583
 
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.post("/{message_string}")
+def ingest(message_string: str):
+    """
+     Takes hex string, returns parsed JSON
+    """
+    val = iso_8583(message_string)
+    if val:
+        return json.loads(val)
+    return {None}
 
+@app.get("/transactions")
+def get_transactions():
+    """
+    Pull transactions from the database
+    """
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+@app.get("/transactios/{txn_id}")
+def get_single_transaction(txn_id: int):
+    """
+    Get a single transaction
+    """
+
+if False:
+    from sqlmodel import Field, SQLModel
+
+    class Hero(SQLModel, ):
+        id: int | None = Field(default=None, primary_key=True)
+        name: str = Field(index=True)
+        age: int | None = Field(default=None, index=True)
+        secret_name: str
+
+    @app.post("/heroes/")
+    def create_hero(hero: Hero) -> Hero:
+        return hero

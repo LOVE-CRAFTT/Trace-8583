@@ -1,14 +1,15 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Trace-8583 backend"
 readme = "README.md"
 authors = [
     { name = "Chukwuemeka Brendan Chukwudi", email = "chukwuemekachukwudi9@gmail.com" }
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "fastapi[standard]>=0.143.1",
+    "fastapi[standard]>=0.147.0",
+    "sqlmodel>=0.0.48",
 ]
 
 [project.scripts]
@@ -17,3 +18,6 @@ backend = "backend:main"
 [build-system]
 requires = ["uv_build>=0.12.19,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.fastapi]
+entrypoint="backend.main:app"

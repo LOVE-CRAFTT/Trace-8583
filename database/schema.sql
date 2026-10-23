@@ -1,3 +1,4 @@
+-- Serves as documentation
 -- TODO: Give overview of current database design
 
 
