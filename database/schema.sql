@@ -1,7 +1,3 @@
--- Serves as documentation
--- TODO: Give overview of current database design
-
-
 CREATE TABLE IF NOT EXISTS original_data_elements (
     id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     mti             CHAR(4)     NOT NULL,

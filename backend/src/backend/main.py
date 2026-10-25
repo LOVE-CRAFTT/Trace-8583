@@ -4,10 +4,26 @@ Backend for a web-based ledger built on top of an iso_8583 parser project.
 """
 
 import json
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+from .models import (OriginalDataElements, 
+                     FinancialRequest, 
+                     FinancialResponse,
+                     ReversalRequest,
+                     ReversalResponse
+                     )
+from .db import create_db_and_tables, SessionDep
 from .iso_8583.iso8583 import iso_8583_to_json as iso_8583
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
 
 
 @app.post("/{message_string}")
