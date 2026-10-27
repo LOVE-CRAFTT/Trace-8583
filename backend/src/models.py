@@ -30,25 +30,30 @@ class MessageBase(SQLModel):
 
 
 class FinancialRequestBase(MessageBase):
+    # pylint: disable=missing-class-docstring
     mcc:             str | None =  Field(None, min_length=4, max_length=4, sa_type=CHAR(4))
     pos_entry_mode:  str | None =  Field(None, min_length=3, max_length=3, sa_type=CHAR(3))
     pos_condition:   str | None =  Field(None, min_length=2, max_length=2, sa_type=CHAR(2))
     acquirer_id:     str | None =  Field(None, max_length=11)
 
 class FinancialResponseBase(MessageBase):
+    # pylint: disable=missing-class-docstring
     auth_id_resp:    str | None =  Field(min_length=6, max_length=6, sa_type=CHAR(6))
     resp_code:       str =         Field(min_length=2, max_length=2, sa_type=CHAR(2))
 
 class ReversalRequestBase(MessageBase):
+    # pylint: disable=missing-class-docstring
     mcc:             str | None =  Field(None, min_length=4, max_length=4, sa_type=CHAR(4))
     acquirer_id:     str | None =  Field(None, max_length=11)
 
 class ReversalResponseBase(MessageBase):
+    # pylint: disable=missing-class-docstring
     mcc:             str | None =  Field(None, min_length=4, max_length=4, sa_type=CHAR(4))
     acquirer_id:     str | None =  Field(None, max_length=11)
     resp_code:       str =         Field(min_length=2, max_length=2, sa_type=CHAR(2))
 
 class OriginalDataElementsBase(SQLModel):
+    # pylint: disable=missing-class-docstring
     mti:             str =         Field(min_length=4, max_length=4, sa_type=CHAR(4))
     transmitted_at:  str =         Field(min_length=10, max_length=10, sa_type=CHAR(10))
     stan:            str =         Field(min_length=6, max_length=6, sa_type=CHAR(6))
@@ -67,16 +72,25 @@ class MessageRecord(SQLModel):
     )
 
 class OriginalDataElements(OriginalDataElementsBase, table=True):
+    """
+    Original Data Elements Table Model
+    """
     __tablename__ = "original_data_elements"
     __table_args__ = (UniqueConstraint("mti", "transmitted_at", "stan"),)
 
     id:              int | None =     Field(None, sa_type=BigInteger, primary_key=True)
 
 class FinancialRequest(FinancialRequestBase, MessageRecord, table=True):
+    """
+    Financial Request Table Model
+    """
     __tablename__ = "financial_request"
     __table_args__ = (UniqueConstraint("stan", "terminal_id","loc_txn_date"),)
 
 class FinancialResponse(FinancialResponseBase, MessageRecord, table=True):
+    """
+    Financial Response Table Model
+    """
     __tablename__ = "financial_response"
     __table_args__ = (UniqueConstraint("stan", "terminal_id","loc_txn_date"),)
 
@@ -85,10 +99,16 @@ class FinancialResponse(FinancialResponseBase, MessageRecord, table=True):
     )
 
 class ReversalRequest(ReversalRequestBase, MessageRecord, table=True):
+    """
+    Reversal Request Table Model
+    """
     __tablename__ = "reversal_request"
     __table_args__ = (UniqueConstraint("stan", "terminal_id","loc_txn_date"),)
 
-    ode_id:                 int =            Field(foreign_key="original_data_elements.id", sa_type=BigInteger)
+    ode_id:                 int =            Field(
+        foreign_key="original_data_elements.id",
+        sa_type=BigInteger
+    )
     original_fin_req_id:    int | None =     Field(
         None,
         foreign_key="financial_request.id",
@@ -96,10 +116,16 @@ class ReversalRequest(ReversalRequestBase, MessageRecord, table=True):
     )
 
 class ReversalResponse(ReversalResponseBase, MessageRecord, table=True):
+    """
+    Reversal Response Table Model
+    """
     __tablename__ = "reversal_response"
     __table_args__ = (UniqueConstraint("stan", "terminal_id","loc_txn_date"),)
 
-    ode_id:                 int =            Field(foreign_key="original_data_elements.id", sa_type=BigInteger)
+    ode_id:                 int =            Field(
+        foreign_key="original_data_elements.id",
+        sa_type=BigInteger
+    )
     reversal_req_id:        int | None =     Field(
         None,
         foreign_key="reversal_request.id",
@@ -111,6 +137,8 @@ if __name__ == "__main__":
     from sqlalchemy import create_mock_engine
 
     def dump(sql, *_args, **kwargs):
+        # pylint: disable=unused-argument
+        # pylint: disable=missing-function-docstring
         print(sql.compile(dialect=engine.dialect))
 
     engine = create_mock_engine("postgresql://", dump)
