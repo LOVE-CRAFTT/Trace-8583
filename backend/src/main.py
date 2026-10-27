@@ -25,9 +25,7 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
     yield
 
-
 app = FastAPI(lifespan=lifespan)
-
 
 
 @app.post("/{message_string}")
@@ -43,15 +41,11 @@ def ingest(message_string: str):
 @app.get("/transactions")
 def get_transactions():
     """
-    Pull transactions from the database
+    Pull transactions from the database (transaction_status view)
     """
-
 
 @app.get("/transactios/{txn_id}")
 def get_single_transaction(txn_id: int):
     """
     Get a single transaction
     """
-
-## get_declined_requests: declined are requests with responses that are not 00
-## reversed are requests that have reverse requests with approved reverse responses

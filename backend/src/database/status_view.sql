@@ -18,8 +18,7 @@ SELECT
             SELECT 1
             FROM reversal_request rq
             JOIN reversal_response rs ON rs.reversal_req_id = rq.id
-            WHERE rq.original_fin_req_id = fr.id
-                AND rs.resp_code = '00'
+            WHERE rq.original_fin_req_id = fr.id AND rs.resp_code = '00'
         ) THEN 'reversed'
         WHEN resp.resp_code = '00' THEN 'approved'
         WHEN resp.resp_code IS NOT NULL THEN 'declined'
