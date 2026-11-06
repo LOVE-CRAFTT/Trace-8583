@@ -3,7 +3,6 @@ ISO 8583 Parser.
 ISO 8583:1987 spec as described by https://en.wikipedia.org/wiki/ISO_8583.
 """
 # import pprint
-import json
 from .exceptions import (BitMapOneError, BitMapTwoError, DataElementError, MTIError)
 from .data_element_format import DATA_ELEMENT_FORMAT
 
@@ -122,7 +121,7 @@ def get_avail_data_elems_and_next_idx(message_bytes: bytes) -> tuple[list, int]:
             available_data_elements.append(index + 1)
     return (available_data_elements, raw_byte_position)
 
-def iso_8583_to_json(iso_8583_hex_string: str) -> str | None:
+def iso_8583_to_json(iso_8583_hex_string: str) -> dict[int, str] | None:
     """
     Convert an iso 8583 message --given as a hexadecimal string--
     and return a JSON string.
@@ -206,12 +205,9 @@ def iso_8583_to_json(iso_8583_hex_string: str) -> str | None:
         return None
 
 
-
-
     # completely parsed message to be used as desired
     # pprint.pp(parsed_message_dict)
-    parsed_message_json = json.dumps(parsed_message_dict, indent=0)
-    return parsed_message_json
+    return parsed_message_dict
 
 
 if __name__ == "__main__":

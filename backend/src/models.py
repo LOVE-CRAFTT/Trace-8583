@@ -65,7 +65,7 @@ class MessageRecord(SQLModel):
     Database-only columns shared by all 4 tables
     """
     id:              int | None =     Field(None, sa_type=BigInteger, primary_key=True)
-    raw_json:        dict[str, Any] = Field(sa_type=JSONB)
+    raw_json:        dict =           Field(sa_type=JSONB)
     created_at:      datetime =       Field(
         default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=True)

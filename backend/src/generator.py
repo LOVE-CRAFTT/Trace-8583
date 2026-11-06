@@ -5,6 +5,7 @@ Keys are data element numbers as strings, matching the parser's JSON output
 ("0" is the MTI). A response echoes the request's identifying fields, and a
 reversal carries the original message's identity in field 90.
 """
+# pylint: disable=redefined-outer-name
 import random
 import pprint
 from datetime import UTC, datetime, timedelta, timezone
@@ -155,6 +156,8 @@ def generate_transaction(reversal_chance: float = 0.1) -> dict[str, dict[str, st
         "reversal_response": reversal_response(reversal) if reversal else None,
     }
 
+def start_generator():
+    """Routinely generates iso 8583 hex messages for database population"""
 
 if __name__ == "__main__":
     for _ in range(3):
