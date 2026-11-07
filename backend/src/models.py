@@ -5,7 +5,6 @@ Base classes (no table=True) hold the message fields and validate input.
 Table classes inherit a base, add database-only columns, and map to tables
 """
 from datetime import UTC, datetime
-from typing import Any
 
 from sqlmodel import SQLModel, Field, UniqueConstraint
 from sqlmodel import BigInteger, DateTime, CHAR

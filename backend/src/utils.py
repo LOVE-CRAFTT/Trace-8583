@@ -33,3 +33,7 @@ def mask_pan(pan: str) -> str:
     pan_len = len(pan)
     pan_masked = pan[0:6] + ("*" * (pan_len - 10)) + pan[pan_len - 4:]
     return pan_masked
+
+def get_raw_json(message_dict: dict) -> dict:
+    """Dict without the pan, expiration date and track 2 data"""
+    return {k: v for k, v in message_dict.items() if (k != 2 or k != 14 or k != 35)}
