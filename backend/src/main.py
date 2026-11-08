@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from sqlmodel import select, Session
-from .utils import DB_DE_MAPPING, mask_pan, get_raw_json
+from .utils import DB_DE_MAPPING, mask_pan, get_raw_json, get_message_base, MessageBaseType
 from .models import (OriginalDataElements,
                      FinancialRequest,
                      FinancialResponse,
@@ -84,22 +84,9 @@ def insert_financial_request(request_dict: dict, session: Session) -> int | None
     Returns id after successful insertion or None if insertion fails
     """
     fin_req_base = FinancialRequestBase(
-        pan_masked      = request_dict    [DB_DE_MAPPING["pan_masked"]],
-        processing_code = request_dict    [DB_DE_MAPPING["processing_code"]],
-        amount          = request_dict    [DB_DE_MAPPING["amount"]],
-        transmitted_at  = request_dict    [DB_DE_MAPPING["transmitted_at"]],
-        stan            = request_dict    [DB_DE_MAPPING["stan"]],
-        loc_txn_time    = request_dict    [DB_DE_MAPPING["loc_txn_time"]],
-        loc_txn_date    = request_dict    [DB_DE_MAPPING["loc_txn_date"]],
-        rrn             = request_dict.get(DB_DE_MAPPING["rrn"]),
-        terminal_id     = request_dict    [DB_DE_MAPPING["terminal_id"]],
-        merchant_id     = request_dict    [DB_DE_MAPPING["merchant_id"]],
-        currency        = request_dict    [DB_DE_MAPPING["currency"]],
-        mcc             = request_dict.get(DB_DE_MAPPING["mcc"]),
-        pos_entry_mode  = request_dict.get(DB_DE_MAPPING["pos_entry_mode"]),
-        pos_condition   = request_dict.get(DB_DE_MAPPING["pos_condition"]),
-        acquirer_id     = request_dict.get(DB_DE_MAPPING["acquirer_id"]),
-    )
+        **get_message_base(request_dict, MessageBaseType.FIN_REQ_BASE)
+        )
+
 
     current_pan = fin_req_base.pan_masked
     fin_req_base.pan_masked = mask_pan(current_pan)
@@ -120,19 +107,7 @@ def insert_financial_response(response_dict: dict, session: Session) -> int | No
         """
 
     fin_resp_base = FinancialResponseBase(
-        pan_masked      = response_dict    [DB_DE_MAPPING["pan_masked"]],
-        processing_code = response_dict    [DB_DE_MAPPING["processing_code"]],
-        amount          = response_dict    [DB_DE_MAPPING["amount"]],
-        transmitted_at  = response_dict    [DB_DE_MAPPING["transmitted_at"]],
-        stan            = response_dict    [DB_DE_MAPPING["stan"]],
-        loc_txn_time    = response_dict    [DB_DE_MAPPING["loc_txn_time"]],
-        loc_txn_date    = response_dict    [DB_DE_MAPPING["loc_txn_date"]],
-        rrn             = response_dict.get(DB_DE_MAPPING["rrn"]),
-        terminal_id     = response_dict    [DB_DE_MAPPING["terminal_id"]],
-        merchant_id     = response_dict    [DB_DE_MAPPING["merchant_id"]],
-        currency        = response_dict    [DB_DE_MAPPING["currency"]],
-        auth_id_resp    = response_dict.get(DB_DE_MAPPING["auth_id_resp"]),
-        resp_code       = response_dict    [DB_DE_MAPPING["resp_code"]]
+        **get_message_base(response_dict, MessageBaseType.FIN_RESP_BASE)
     )
     current_pan = fin_resp_base.pan_masked
     fin_resp_base.pan_masked = mask_pan(current_pan)
