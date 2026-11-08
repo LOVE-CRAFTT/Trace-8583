@@ -8,7 +8,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from sqlmodel import select, Session
-from .utils import mask_pan, get_raw_json, get_message_base, MessageBaseType
+from .utils import (mask_pan, 
+                    get_raw_json, 
+                    get_message_base, 
+                    MessageBaseType,
+                    get_ode_base
+                    )
 from .models import (OriginalDataElements,
                      FinancialRequest,
                      FinancialResponse,
@@ -70,7 +75,7 @@ def process(hex_string: str):
                 case "0210":
                     return insert_financial_response(message_dict, session)
                 case "0400":
-                    return "Reversal Request"
+                    return insert_reversal_request(message_dict, session)
                 case "0410":
                     return "Reversal Response"
                 case _:
@@ -106,8 +111,7 @@ def insert_financial_response(response_dict: dict[int, str], session: Session) -
     fin_resp_base = FinancialResponseBase(
         **get_message_base(response_dict, MessageBaseType.FIN_RESP_BASE)
     )
-    current_pan = fin_resp_base.pan
-    fin_resp_base.pan = mask_pan(current_pan)
+    fin_resp_base.pan = mask_pan(fin_resp_base.pan)
 
     # get the id of the related financial request.
     # using the unique combo
@@ -146,4 +150,46 @@ def insert_reversal_request(request_dict: dict[int, str], session: Session) -> i
         **get_message_base(request_dict, MessageBaseType.REV_REQ_BASE)
     )
     rev_req_base.pan = mask_pan(rev_req_base.pan)
-    return None
+
+    # Read field 90, populate the database and retrieve the ode_id
+    ode_base = get_ode_base(request_dict[90])
+    ode = OriginalDataElements.model_validate(ode_base)
+    session.add(ode)
+    session.commit()
+    session.refresh(ode)
+
+    if not ode.id:
+        # Here, ode wasn't inserted successfully but it's id is necessary
+        # TODO: Remove later
+        print("ode insertion failed")
+        return None
+
+    ode_id = ode.id
+
+    # find fin_req_id from the financial request table using de 90 stan,
+    # "my" terminal_id and de 90 transmitted at since they're all echoed from the
+    # financial request
+    statement = select(FinancialRequest).where(
+        FinancialRequest.stan == ode.stan
+    ).where(
+        FinancialRequest.transmitted_at == ode.transmitted_at
+    ).where(
+        FinancialRequest.terminal_id == rev_req_base.terminal_id
+    )
+
+    results = session.exec(statement).all()
+    related_fin_req_id = results[0].id if results else None
+
+    # plug it all in
+    rev_req = ReversalRequest(
+        **rev_req_base.model_dump(),
+        raw_json=get_raw_json(request_dict),
+        ode_id=ode_id,
+        original_fin_req_id=related_fin_req_id
+    )
+
+    session.add(rev_req)
+    session.commit()
+    session.refresh(rev_req)
+    return rev_req.id if rev_req.id else None
+

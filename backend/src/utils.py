@@ -2,6 +2,7 @@
 Utility variables and functions
 """
 from enum import Enum
+from .models import OriginalDataElementsBase
 
 ORIGINAL_DB_DE_MAPPING : dict[int, str] = {
      0: "mti",
@@ -36,7 +37,7 @@ def mask_pan(pan: str) -> str:
 
 def get_raw_json(message_dict: dict) -> dict:
     """Dict without the pan, expiration date and track 2 data"""
-    return {k: v for k, v in message_dict.items() if (k != 2 or k != 14 or k != 35)}
+    return {k: v for k, v in message_dict.items() if int(k) not in (2, 14, 35)}
 
 
 
@@ -85,3 +86,22 @@ def get_message_base(message_dict: dict, message_type: MessageBaseType) -> dict:
         message_base["resp_code"]       = message_dict    [DB_DE_MAPPING["resp_code"]]
 
     return message_base
+
+
+def get_ode_base(original_de: str) -> OriginalDataElementsBase:
+    """Get ode base as OriginalDataElementsBase"""
+    mti = original_de[0:4]
+    stan = original_de[4:10]
+    transmitted_at = original_de[10:20]
+    acquirer_id = original_de[20:31] if original_de[20:31] else None
+    forwarder_id = original_de[31:] if original_de[31:] else None
+
+    ode_base = OriginalDataElementsBase(
+        mti=mti,
+        stan=stan,
+        transmitted_at=transmitted_at,
+        acquirer_id=acquirer_id,
+        forwarder_id=forwarder_id
+    )
+
+    return ode_base

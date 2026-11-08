@@ -54,8 +54,8 @@ class ReversalResponseBase(MessageBase):
 class OriginalDataElementsBase(SQLModel):
     # pylint: disable=missing-class-docstring
     mti:             str =         Field(min_length=4, max_length=4, sa_type=CHAR(4))
-    transmitted_at:  str =         Field(min_length=10, max_length=10, sa_type=CHAR(10))
     stan:            str =         Field(min_length=6, max_length=6, sa_type=CHAR(6))
+    transmitted_at:  str =         Field(min_length=10, max_length=10, sa_type=CHAR(10))
     acquirer_id:     str | None =  Field(None, max_length=11)
     forwarder_id:    str | None =  Field(None, max_length=11)
 
