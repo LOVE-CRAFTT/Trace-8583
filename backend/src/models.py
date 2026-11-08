@@ -15,7 +15,7 @@ class MessageBase(SQLModel):
     Fields shared by all response and request tables
     """
 
-    pan_masked:      str =         Field(max_length=19)
+    pan:             str =         Field(max_length=19)
     processing_code: str =         Field(min_length=6, max_length=6, sa_type=CHAR(6))
     amount:          int =         Field(sa_type=BigInteger)
     transmitted_at:  str =         Field(min_length=10, max_length=10, sa_type=CHAR(10))

@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from sqlmodel import select, Session
-from .utils import DB_DE_MAPPING, mask_pan, get_raw_json, get_message_base, MessageBaseType
+from .utils import mask_pan, get_raw_json, get_message_base, MessageBaseType
 from .models import (OriginalDataElements,
                      FinancialRequest,
                      FinancialResponse,
@@ -79,17 +79,14 @@ def process(hex_string: str):
     return {None}
 
 
-def insert_financial_request(request_dict: dict, session: Session) -> int | None:
+def insert_financial_request(request_dict: dict[int, str], session: Session) -> int | None:
     """
     Returns id after successful insertion or None if insertion fails
     """
     fin_req_base = FinancialRequestBase(
         **get_message_base(request_dict, MessageBaseType.FIN_REQ_BASE)
         )
-
-
-    current_pan = fin_req_base.pan_masked
-    fin_req_base.pan_masked = mask_pan(current_pan)
+    fin_req_base.pan = mask_pan(fin_req_base.pan)
 
     # remove pan from raw_json
     fin_req =FinancialRequest(**fin_req_base.model_dump(),
@@ -101,16 +98,16 @@ def insert_financial_request(request_dict: dict, session: Session) -> int | None
     return fin_req.id if fin_req.id else None
 
 
-def insert_financial_response(response_dict: dict, session: Session) -> int | None:
+def insert_financial_response(response_dict: dict[int, str], session: Session) -> int | None:
     """
-        Returns id after successful insertion or None if insertion fails
-        """
+    Returns id after successful insertion or None if insertion fails
+    """
 
     fin_resp_base = FinancialResponseBase(
         **get_message_base(response_dict, MessageBaseType.FIN_RESP_BASE)
     )
-    current_pan = fin_resp_base.pan_masked
-    fin_resp_base.pan_masked = mask_pan(current_pan)
+    current_pan = fin_resp_base.pan
+    fin_resp_base.pan = mask_pan(current_pan)
 
     # get the id of the related financial request.
     # using the unique combo
@@ -139,3 +136,14 @@ def insert_financial_response(response_dict: dict, session: Session) -> int | No
     session.commit()
     session.refresh(fin_resp)
     return fin_resp.id if fin_resp.id else None
+
+
+def insert_reversal_request(request_dict: dict[int, str], session: Session) -> int | None:
+    """
+    Returns id after successful insertion or None if insertion fails
+    """
+    rev_req_base = ReversalRequestBase(
+        **get_message_base(request_dict, MessageBaseType.REV_REQ_BASE)
+    )
+    rev_req_base.pan = mask_pan(rev_req_base.pan)
+    return None

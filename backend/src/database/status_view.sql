@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW transaction_status AS
 SELECT
     fr.id,
-    fr.pan_masked,
+    fr.pan,
     fr.processing_code,
     fr.amount,
     fr.currency,

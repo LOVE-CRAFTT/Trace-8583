@@ -5,7 +5,7 @@ from enum import Enum
 
 ORIGINAL_DB_DE_MAPPING : dict[int, str] = {
      0: "mti",
-     2: "pan_masked",
+     2: "pan",
      3: "processing_code",
      4: "amount",
      7: "transmitted_at",
@@ -38,6 +38,8 @@ def get_raw_json(message_dict: dict) -> dict:
     """Dict without the pan, expiration date and track 2 data"""
     return {k: v for k, v in message_dict.items() if (k != 2 or k != 14 or k != 35)}
 
+
+
 class MessageBaseType(Enum):
     """Message Base Types enum for consistency"""
     ODE_BASE      = 1
@@ -50,7 +52,7 @@ def get_message_base(message_dict: dict, message_type: MessageBaseType) -> dict:
     """Get message base as dict from the processed iso_message
       for populating the relevant model"""
     message_base = {
-        "pan_masked"      : message_dict    [DB_DE_MAPPING["pan_masked"]],
+        "pan"             : message_dict    [DB_DE_MAPPING["pan"]],
         "processing_code" : message_dict    [DB_DE_MAPPING["processing_code"]],
         "amount"          : message_dict    [DB_DE_MAPPING["amount"]],
         "transmitted_at"  : message_dict    [DB_DE_MAPPING["transmitted_at"]],
@@ -66,20 +68,20 @@ def get_message_base(message_dict: dict, message_type: MessageBaseType) -> dict:
     if message_type == MessageBaseType.FIN_REQ_BASE:
         message_base["mcc"]             = message_dict.get(DB_DE_MAPPING["mcc"])
         message_base["pos_entry_mode"]  = message_dict.get(DB_DE_MAPPING["pos_entry_mode"])
-        message_base["pos_condition "]  = message_dict.get(DB_DE_MAPPING["pos_condition"])
-        message_base["acquirer_id   "]  = message_dict.get(DB_DE_MAPPING["acquirer_id"])
+        message_base["pos_condition"]   = message_dict.get(DB_DE_MAPPING["pos_condition"])
+        message_base["acquirer_id"]     = message_dict.get(DB_DE_MAPPING["acquirer_id"])
 
     if message_type == MessageBaseType.FIN_RESP_BASE:
         message_base["auth_id_resp"]    = message_dict.get(DB_DE_MAPPING["auth_id_resp"])
-        message_base["resp_code   "]    = message_dict    [DB_DE_MAPPING["resp_code"]]
+        message_base["resp_code"]       = message_dict    [DB_DE_MAPPING["resp_code"]]
 
     if message_type == MessageBaseType.REV_REQ_BASE:
         message_base["mcc"]             = message_dict.get(DB_DE_MAPPING["mcc"])
-        message_base["acquirer_id   "]  = message_dict.get(DB_DE_MAPPING["acquirer_id"])
+        message_base["acquirer_id"]     = message_dict.get(DB_DE_MAPPING["acquirer_id"])
 
     if message_type == MessageBaseType.REV_RESP_BASE:
         message_base["mcc"]             = message_dict.get(DB_DE_MAPPING["mcc"])
-        message_base["acquirer_id   "]  = message_dict.get(DB_DE_MAPPING["acquirer_id"])
-        message_base["resp_code   "]    = message_dict    [DB_DE_MAPPING["resp_code"]]
+        message_base["acquirer_id"]     = message_dict.get(DB_DE_MAPPING["acquirer_id"])
+        message_base["resp_code"]       = message_dict    [DB_DE_MAPPING["resp_code"]]
 
     return message_base
