@@ -2,7 +2,8 @@
 Utility variables and functions
 """
 from enum import Enum
-from .models import OriginalDataElementsBase
+from sqlmodel import select, Session
+from .models import OriginalDataElementsBase, OriginalDataElements
 
 ORIGINAL_DB_DE_MAPPING : dict[int, str] = {
      0: "mti",
@@ -105,3 +106,31 @@ def get_ode_base(original_de: str) -> OriginalDataElementsBase:
     )
 
     return ode_base
+
+
+def get_ode(ode_str: str, session: Session) -> OriginalDataElements:
+    """
+    Returns the ode after insertion, if ode already exists 
+    returns that ode instead
+    """
+    ode_base = get_ode_base(ode_str)
+    ode = OriginalDataElements.model_validate(ode_base)
+
+    # if ode is already inserted use that
+    statement = select(OriginalDataElements).where(
+        OriginalDataElements.mti == ode.mti
+    ).where(
+        OriginalDataElements.transmitted_at == ode.transmitted_at
+    ).where(
+        OriginalDataElements.stan == ode.stan
+    )
+
+    result = session.exec(statement).one_or_none()
+    # end result of this is ode getting an id
+    if not result:
+        session.add(ode)
+        session.flush()
+    else:
+        ode.id = result.id
+
+    return ode
