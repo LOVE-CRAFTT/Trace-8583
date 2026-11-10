@@ -2,16 +2,13 @@
 Trace-8583 Backend.
 Backend for a web-based ledger built on top of an iso_8583 parser project.
 """
-# pylint: disable=unused-import
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from sqlmodel import select, Session
-from sqlalchemy import select as sa_select
-from .db import create_db_and_tables, get_status_view, engine
+from .db import create_db_and_tables
 from .ingest import process
-from .models import FinancialRequest
+from .retrieve_txn import retrieve_txn
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,25 +41,3 @@ def get_single_transaction(txn_idx: int):
     Get a single transaction
     """
     return retrieve_txn(idx=txn_idx)
-
-
-def retrieve_txn(idx: int | None = None):
-    """
-    Get transaction(s) as a list
-    """
-    with Session(engine) as session:
-        view = get_status_view()
-
-        query = ""
-        if idx:
-            query = select(FinancialRequest).where(FinancialRequest.id == idx)
-        else:
-            query = sa_select(view).order_by(view.c.created_at.desc())
-
-        rows = session.exec(query).all()
-        if idx:
-            if rows:
-                return rows[0].model_dump()
-            return None
-
-        return [dict(row._mapping) for row in rows] # pylint: disable=protected-access
