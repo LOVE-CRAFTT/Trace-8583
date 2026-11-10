@@ -7,8 +7,11 @@ Backend for a web-based ledger built on top of an iso_8583 parser project.
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from .db import create_db_and_tables
+from sqlmodel import select, Session
+from sqlalchemy import select as sa_select
+from .db import create_db_and_tables, get_status_view, engine
 from .ingest import process
+from .models import FinancialRequest
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,14 +31,38 @@ def ingest(message_string: str):
     """
     return process(message_string)
 
-@app.get("/transactions")
+@app.get("/transactions", response_model=list[dict])
 def get_transactions():
     """
     Pull transactions from the database (transaction_status view)
     """
+    return retrieve_txn()
 
-@app.get("/transactios/{txn_id}")
-def get_single_transaction(txn_id: int): # pylint: disable=unused-argument
+@app.get("/transactions/{txn_idx}", response_model=dict | None)
+def get_single_transaction(txn_idx: int):
     """
     Get a single transaction
     """
+    return retrieve_txn(idx=txn_idx)
+
+
+def retrieve_txn(idx: int | None = None):
+    """
+    Get transaction(s) as a list
+    """
+    with Session(engine) as session:
+        view = get_status_view()
+
+        query = ""
+        if idx:
+            query = select(FinancialRequest).where(FinancialRequest.id == idx)
+        else:
+            query = sa_select(view).order_by(view.c.created_at.desc())
+
+        rows = session.exec(query).all()
+        if idx:
+            if rows:
+                return rows[0].model_dump()
+            return None
+
+        return [dict(row._mapping) for row in rows] # pylint: disable=protected-access

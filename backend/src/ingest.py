@@ -96,7 +96,7 @@ def insert_financial_response(response_dict: dict[int, str], session: Session) -
 
     # There should be exactly one related fin_req
     # but still insert but related request id would be null
-    related_fin_req = result[0] if result else None
+    related_fin_req = result if result else None
     fin_resp =  FinancialResponse(
         **fin_resp_base.model_dump(),
         raw_json=get_raw_json(response_dict),
@@ -137,7 +137,7 @@ def insert_reversal_request(request_dict: dict[int, str], session: Session) -> i
     )
 
     result = session.exec(statement).one_or_none()
-    related_fin_req_id = result[0].id if result else None
+    related_fin_req_id = result.id if result else None
 
     # plug it all in
     rev_req = ReversalRequest(
