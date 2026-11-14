@@ -46,7 +46,9 @@ def process(hex_string: str):
                     case _:
                         result = message_dict
         except IntegrityError as e:
-            print(e.statement, e)
+            # 23505 identifies duplicate messages: skip silently
+            if getattr(e.orig, "sqlstate", None) != "23505":
+                print(e.statement, e)
 
     return result
 
