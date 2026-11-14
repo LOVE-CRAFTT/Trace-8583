@@ -6,6 +6,7 @@ Backend for a web-based ledger built on top of an iso_8583 parser project.
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .db import create_db_and_tables
 from .ingest import process
 from .retrieve_txn import retrieve_txn
@@ -19,6 +20,15 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/{message_string}", response_model=int | dict[int, str] | None)
