@@ -21,7 +21,7 @@ ACQUIRER_ID = "111111"
 
 # About 90% approved, the rest spread over common decline codes
 RESPONSE_CODES = ["00", "05", "51", "55", "91"]
-RESPONSE_WEIGHTS = [90, 4, 3, 2, 1]
+RESPONSE_WEIGHTS = [60, 10, 10, 10, 10]
 
 
 # Field layouts: (kind, size). "fixed" is exactly size characters; "llvar" and
@@ -161,5 +161,5 @@ def start_generator():
 
 if __name__ == "__main__":
     for _ in range(3):
-        for name, msg in generate_transaction(reversal_chance=1.0).items():
+        for name, msg in generate_transaction(reversal_chance=0.2).items():
             pprint.pp((name, pack(msg) if msg else None))
