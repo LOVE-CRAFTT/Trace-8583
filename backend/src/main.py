@@ -2,14 +2,16 @@
 Trace-8583 Backend.
 Backend for a web-based ledger built on top of an iso_8583 parser project.
 """
-
+import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db import create_db_and_tables
 from .ingest import process
 from .retrieve_txn import retrieve_txn
+from .generator import start_generator, stop_generator
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,7 +19,18 @@ async def lifespan(app: FastAPI):
     # pylint: disable=redefined-outer-name
     # pylint: disable=missing-function-docstring
     create_db_and_tables()
+
+    # start generator
+    load_dotenv()
+    use_generator = os.getenv("USE_GENERATOR") == "TRUE"
+    if use_generator:
+        start_generator()
+
     yield
+
+    # shutdown generator
+    if use_generator:
+        stop_generator()
 
 app = FastAPI(lifespan=lifespan)
 

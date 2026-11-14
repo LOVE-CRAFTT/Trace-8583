@@ -8,8 +8,11 @@ reversal carries the original message's identity in field 90.
 # pylint: disable=redefined-outer-name
 import random
 import pprint
+import threading
 from datetime import UTC, datetime, timedelta, timezone
 from itertools import count
+
+from .ingest import process
 
 LAGOS = timezone(timedelta(hours=1))  # Nigeria has no daylight saving
 
@@ -156,8 +159,52 @@ def generate_transaction(reversal_chance: float = 0.1) -> dict[str, dict[str, st
         "reversal_response": reversal_response(reversal) if reversal else None,
     }
 
+def get_transaction_hex_strings() -> list[str]:
+    """Pack generated transaction set to hex string"""
+    generated_strings = []
+    for _, msg in generate_transaction(reversal_chance=0.2).items():
+        if msg:
+            generated_strings.append(pack(msg))
+    return generated_strings
+
+
+# for threading in start/stop_generator function
+stop_event = None # pylint: disable=invalid-name
+thread = None     # pylint: disable=invalid-name
+
+def run_generator(stop_event):
+    """Continuously generate, pack, and process transactions until stopped."""
+    while not stop_event.is_set():
+        try:
+            transactions = get_transaction_hex_strings()
+            for value in transactions:
+                if stop_event.is_set():
+                    break
+                process(value)
+        except Exception as e: # pylint: disable=broad-exception-caught
+            print(f"Generator error: {e}")
+        stop_event.wait(5)
+
 def start_generator():
-    """Routinely generates iso 8583 hex messages for database population"""
+    """Start the background transaction generator thread if not already running."""
+    global stop_event, thread # pylint: disable=global-statement
+
+    if thread is not None and thread.is_alive():
+        return
+    stop_event = threading.Event()
+    thread = threading.Thread(
+        target=run_generator,
+        args=(stop_event,),
+        daemon=True
+    )
+    thread.start()
+
+def stop_generator():
+    """Signal the transaction generator to stop and wait for its thread to finish."""
+    if thread is not None and thread.is_alive():
+        stop_event.set()
+        thread.join(timeout=5)
+
 
 if __name__ == "__main__":
     for _ in range(3):
