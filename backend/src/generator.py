@@ -183,7 +183,7 @@ def run_generator(stop_event):
                 process(value)
         except Exception as e: # pylint: disable=broad-exception-caught
             print(f"Generator error: {e}")
-        stop_event.wait(5)
+        stop_event.wait(3)
 
 def start_generator():
     """Start the background transaction generator thread if not already running."""
