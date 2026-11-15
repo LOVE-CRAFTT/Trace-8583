@@ -24,7 +24,7 @@ ACQUIRER_ID = "111111"
 
 # About 90% approved, the rest spread over common decline codes
 RESPONSE_CODES = ["00", "05", "51", "55", "91"]
-RESPONSE_WEIGHTS = [60, 10, 10, 10, 10]
+RESPONSE_WEIGHTS = [80, 5, 5, 5, 5]
 
 
 # Field layouts: (kind, size). "fixed" is exactly size characters; "llvar" and
@@ -203,7 +203,7 @@ def stop_generator():
     """Signal the transaction generator to stop and wait for its thread to finish."""
     if thread is not None and thread.is_alive():
         stop_event.set()
-        thread.join(timeout=5)
+        thread.join(timeout=3)
 
 
 if __name__ == "__main__":
