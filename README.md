@@ -21,6 +21,16 @@ Needs Python 3.14+ with [uv](https://docs.astral.sh/uv/), Node.js, and PostgreSQ
 3. Backend: `cd backend && uv run fastapi dev` (creates the tables and view on startup).
 4. Frontend: `cd frontend && npm install && npm run dev`, then open the address Vite prints.
 
+## API
+
+| Method | Path                 | Description                                                         |
+| ------ | -------------------- | ------------------------------------------------------------------- |
+| `GET`  | `/transactions`      | All transactions with their derived status, newest first            |
+| `GET`  | `/transactions/{id}` | One transaction, by the id from the list                            |
+| `POST` | `/{message_string}`  | Ingest one hex-encoded ISO 8583 message and return the new row's id |
+
+Interactive documentation is served at `/docs` while the backend is running.
+
 ## Design notes
 
 - **No card data stored.** The PAN is masked (first 6, last 4) before it reaches a model, and the PAN, expiry, and track 2 data are removed from the stored raw JSON. A test scans every table for a full card number.
